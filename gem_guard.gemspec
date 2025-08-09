@@ -8,13 +8,13 @@ Gem::Specification.new do |spec|
 
   spec.summary = "Supply chain security and vulnerability management for Ruby gems"
   spec.description = "A comprehensive tool to detect, report, and remediate dependency-related security risks in Ruby projects. Includes CVE scanning, SBOM generation, and CI/CD integration."
-  spec.homepage = "https://github.com/wilbursuero/gem_guard"
+  spec.homepage = "https://github.com/wilburhimself/gem_guard"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/wilbursuero/gem_guard"
-  spec.metadata["changelog_uri"] = "https://github.com/wilbursuero/gem_guard/blob/main/CHANGELOG.md"
+  spec.metadata["source_code_uri"] = "https://github.com/wilburhimself/gem_guard"
+  spec.metadata["changelog_uri"] = "https://github.com/wilburhimself/gem_guard/blob/main/CHANGELOG.md"
 
   spec.files = Dir.chdir(__dir__) do
     `git ls-files -z`.split("\x0").reject do |f|
