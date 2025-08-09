@@ -2,9 +2,12 @@ name: Release
 
 on:
   push:
-    branches: [main]
     paths:
       - 'lib/gem_guard/version.rb'
+
+permissions:
+  contents: write
+  packages: write
 
 jobs:
   test:
@@ -70,7 +73,7 @@ jobs:
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
         git tag -a ${{ steps.version.outputs.tag }} -m "Release ${{ steps.version.outputs.version }}"
-        git push origin ${{ steps.version.outputs.tag }}
+        git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git ${{ steps.version.outputs.tag }}
     
     - name: Generate changelog
       if: steps.tag_check.outputs.exists == 'false'
