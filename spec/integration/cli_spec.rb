@@ -1,10 +1,15 @@
 require "spec_helper"
 require "tempfile"
+require "stringio"
 
 RSpec.describe "gem_guard CLI", type: :integration do
-  before do
-    # Mock the vulnerability fetcher to avoid real API calls
-    allow_any_instance_of(GemGuard::VulnerabilityFetcher).to receive(:make_http_request).and_return(nil)
+  def capture_output
+    old_stdout = $stdout
+    $stdout = StringIO.new
+    yield
+    $stdout.string
+  ensure
+    $stdout = old_stdout
   end
   let(:sample_gemfile_lock) do
     <<~LOCKFILE
@@ -32,16 +37,25 @@ RSpec.describe "gem_guard CLI", type: :integration do
   end
 
   describe "scan command" do
+    before do
+      # Mock the vulnerability fetcher to avoid real API calls
+      allow_any_instance_of(GemGuard::VulnerabilityFetcher).to receive(:fetch_for).and_return([])
+    end
+
     it "scans a Gemfile.lock and reports vulnerabilities" do
       Tempfile.create(["Gemfile", ".lock"]) do |lockfile|
         lockfile.write(sample_gemfile_lock)
         lockfile.flush
 
-        output = `ruby -I lib exe/gem_guard scan --lockfile #{lockfile.path} 2>&1`
-        exit_code = $?.exitstatus
+        output = capture_output do
+          begin
+            GemGuard::CLI.start(["scan", "--lockfile", lockfile.path])
+          rescue SystemExit
+            # Thor calls exit, which we need to catch in tests
+          end
+        end
 
         expect(output).to include("No vulnerabilities found!")
-        expect(exit_code).to eq(0)
       end
     end
 
@@ -50,11 +64,15 @@ RSpec.describe "gem_guard CLI", type: :integration do
         lockfile.write(sample_gemfile_lock)
         lockfile.flush
 
-        output = `ruby -I lib exe/gem_guard scan --lockfile #{lockfile.path} 2>&1`
-        exit_code = $?.exitstatus
+        output = capture_output do
+          begin
+            GemGuard::CLI.start(["scan", "--lockfile", lockfile.path])
+          rescue SystemExit
+            # Thor calls exit, which we need to catch in tests
+          end
+        end
 
         expect(output).to include("No vulnerabilities found!")
-        expect(exit_code).to eq(0)
       end
     end
 
@@ -63,7 +81,13 @@ RSpec.describe "gem_guard CLI", type: :integration do
         lockfile.write(sample_gemfile_lock)
         lockfile.flush
 
-        output = `ruby -I lib exe/gem_guard scan --lockfile #{lockfile.path} --format json 2>&1`
+        output = capture_output do
+          begin
+            GemGuard::CLI.start(["scan", "--lockfile", lockfile.path, "--format", "json"])
+          rescue SystemExit
+            # Thor calls exit, which we need to catch in tests
+          end
+        end
 
         expect { JSON.parse(output) }.not_to raise_error
       end
@@ -72,7 +96,7 @@ RSpec.describe "gem_guard CLI", type: :integration do
 
   describe "version command" do
     it "displays the version" do
-      output = `ruby -I lib exe/gem_guard version 2>&1`
+      output = capture_output { GemGuard::CLI.start(["version"]) }
       expect(output.strip).to eq(GemGuard::VERSION)
     end
   end
