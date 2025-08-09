@@ -1,8 +1,10 @@
 # GemGuard
 
 [![Gem Version](https://badge.fury.io/rb/gem_guard.svg)](https://badge.fury.io/rb/gem_guard)
-[![Build Status](https://github.com/wilbursuero/gem_guard/workflows/CI/badge.svg)](https://github.com/wilbursuero/gem_guard/actions)
+[![CI](https://github.com/wilburhimself/gem_guard/workflows/CI/badge.svg)](https://github.com/wilburhimself/gem_guard/actions/workflows/ci.yml)
+[![Release](https://github.com/wilburhimself/gem_guard/workflows/Release/badge.svg)](https://github.com/wilburhimself/gem_guard/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Security](https://img.shields.io/badge/Security-Policy-blue.svg)](SECURITY.md)
 
 Supply chain security and vulnerability management for Ruby gems. GemGuard provides developers with a comprehensive tool to detect, report, and remediate dependency-related security risks.
 
@@ -79,9 +81,30 @@ Details:
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `bundle install` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bundle exec rake standard` to run the linter.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+### Running Tests
+
+```bash
+bundle exec rspec          # Run all tests
+bundle exec rake standard  # Run linter
+bundle exec rake           # Run both tests and linter
+```
+
+### Releasing
+
+Releases are automated via GitHub Actions. To create a new release:
+
+1. Update the version number in `lib/gem_guard/version.rb`
+2. Commit and push to the `main` branch
+3. GitHub Actions will automatically:
+   - Run tests across multiple Ruby versions
+   - Create a git tag
+   - Generate release notes
+   - Create a GitHub release
+   - Publish to RubyGems.org
+
+The release workflow is triggered only when `lib/gem_guard/version.rb` changes.
 
 ## Contributing
 

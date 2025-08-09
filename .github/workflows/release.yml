@@ -1,0 +1,133 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/gem_guard/version.rb'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby-version: ['3.0', '3.1', '3.2', '3.3']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Ruby ${{ matrix.ruby-version }}
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+        bundler-cache: true
+    
+    - name: Run tests
+      run: bundle exec rspec
+    
+    - name: Run linter
+      run: bundle exec rake standard
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.3'
+        bundler-cache: true
+    
+    - name: Extract version
+      id: version
+      run: |
+        VERSION=$(ruby -r ./lib/gem_guard/version.rb -e "puts GemGuard::VERSION")
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+    
+    - name: Check if tag exists
+      id: tag_check
+      run: |
+        if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Build gem
+      if: steps.tag_check.outputs.exists == 'false'
+      run: gem build gem_guard.gemspec
+    
+    - name: Create Git tag
+      if: steps.tag_check.outputs.exists == 'false'
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag -a ${{ steps.version.outputs.tag }} -m "Release ${{ steps.version.outputs.version }}"
+        git push origin ${{ steps.version.outputs.tag }}
+    
+    - name: Generate changelog
+      if: steps.tag_check.outputs.exists == 'false'
+      id: changelog
+      run: |
+        # Get the previous tag
+        PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+        
+        # Generate changelog
+        if [ -n "$PREV_TAG" ]; then
+          CHANGELOG=$(git log $PREV_TAG..HEAD --pretty=format:"- %s" --no-merges)
+        else
+          CHANGELOG=$(git log --pretty=format:"- %s" --no-merges)
+        fi
+        
+        # Create release notes
+        cat > release_notes.md << EOF
+        # GemGuard v${{ steps.version.outputs.version }}
+        
+        ## What's Changed
+        $CHANGELOG
+        
+        ## Installation
+        \`\`\`bash
+        gem install gem_guard
+        \`\`\`
+        
+        ## Usage
+        \`\`\`bash
+        gem_guard scan
+        gem_guard scan --format json
+        \`\`\`
+        
+        **Full Changelog**: https://github.com/${{ github.repository }}/compare/$PREV_TAG...${{ steps.version.outputs.tag }}
+        EOF
+    
+    - name: Create GitHub Release
+      if: steps.tag_check.outputs.exists == 'false'
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.tag }}
+        release_name: GemGuard v${{ steps.version.outputs.version }}
+        body_path: release_notes.md
+        draft: false
+        prerelease: false
+    
+    - name: Publish to RubyGems
+      if: steps.tag_check.outputs.exists == 'false'
+      run: |
+        mkdir -p ~/.gem
+        cat << EOF > ~/.gem/credentials
+        ---
+        :rubygems_api_key: ${{ secrets.RUBYGEMS_API_KEY }}
+        EOF
+        chmod 0600 ~/.gem/credentials
+        gem push gem_guard-${{ steps.version.outputs.version }}.gem
+      env:
+        RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
