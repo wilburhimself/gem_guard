@@ -39,14 +39,14 @@ module GemGuard
       generator = SbomGenerator.new
 
       sbom_data = case options[:format].downcase
-                  when "spdx"
-                    generator.generate_spdx(dependencies, options[:project])
-                  when "cyclone-dx", "cyclonedx"
-                    generator.generate_cyclone_dx(dependencies, options[:project])
-                  else
-                    puts "Error: Unsupported format '#{options[:format]}'. Use 'spdx' or 'cyclone-dx'"
-                    exit 1
-                  end
+      when "spdx"
+        generator.generate_spdx(dependencies, options[:project])
+      when "cyclone-dx", "cyclonedx"
+        generator.generate_cyclone_dx(dependencies, options[:project])
+      else
+        puts "Error: Unsupported format '#{options[:format]}'. Use 'spdx' or 'cyclone-dx'"
+        exit 1
+      end
 
       output_json = JSON.pretty_generate(sbom_data)
 

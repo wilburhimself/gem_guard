@@ -144,7 +144,7 @@ module GemGuard
       bytes = Array.new(16) { rand(256) }
       bytes[6] = (bytes[6] & 0x0f) | 0x40  # Version 4
       bytes[8] = (bytes[8] & 0x3f) | 0x80  # Variant bits
-      
+
       format = "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x"
       format % bytes
     end

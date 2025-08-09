@@ -50,7 +50,7 @@ RSpec.describe GemGuard::SbomGenerator do
     it "includes external references with purl" do
       packages = spdx_output["packages"]
       rails_package = packages.find { |pkg| pkg["name"] == "rails" }
-      
+
       expect(rails_package["externalRefs"]).to be_an(Array)
       purl_ref = rails_package["externalRefs"].find { |ref| ref["referenceType"] == "purl" }
       expect(purl_ref["referenceLocator"]).to eq("pkg:gem/rails@7.0.0")
@@ -82,7 +82,7 @@ RSpec.describe GemGuard::SbomGenerator do
       metadata = cyclone_dx_output["metadata"]
       expect(metadata).to have_key("timestamp")
       expect(metadata["tools"]).to be_an(Array)
-      
+
       tool = metadata["tools"].first
       expect(tool["name"]).to eq("gem_guard")
       expect(tool["version"]).to eq(GemGuard::VERSION)
@@ -114,13 +114,13 @@ RSpec.describe GemGuard::SbomGenerator do
     it "includes external references for each component" do
       components = cyclone_dx_output["components"]
       rails_component = components.find { |comp| comp["name"] == "rails" }
-      
+
       external_refs = rails_component["externalReferences"]
       expect(external_refs).to be_an(Array)
-      
+
       distribution_ref = external_refs.find { |ref| ref["type"] == "distribution" }
       expect(distribution_ref["url"]).to eq("https://rubygems.org/downloads/rails-7.0.0.gem")
-      
+
       website_ref = external_refs.find { |ref| ref["type"] == "website" }
       expect(website_ref["url"]).to eq("https://rubygems.org/gems/rails")
     end

@@ -129,7 +129,7 @@ RSpec.describe "gem_guard CLI", type: :integration do
 
           expect(output).to include("SBOM written to #{output_file.path}")
           expect(File.exist?(output_file.path)).to be true
-          
+
           file_content = File.read(output_file.path)
           expect { JSON.parse(file_content) }.not_to raise_error
         end
@@ -142,11 +142,9 @@ RSpec.describe "gem_guard CLI", type: :integration do
         lockfile.flush
 
         output = capture_output do
-          begin
-            GemGuard::CLI.start(["sbom", "--lockfile", lockfile.path, "--format", "invalid"])
-          rescue SystemExit
-            # Thor calls exit for invalid format
-          end
+          GemGuard::CLI.start(["sbom", "--lockfile", lockfile.path, "--format", "invalid"])
+        rescue SystemExit
+          # Thor calls exit for invalid format
         end
 
         expect(output).to include("Error: Unsupported format 'invalid'")
