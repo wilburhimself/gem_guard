@@ -1,8 +1,7 @@
 PATH
   remote: .
   specs:
-    gem_guard (0.1.0)
-      bundler (>= 2.0)
+    gem_guard (0.1.1)
       json (~> 2.0)
       thor (~> 1.0)
 
@@ -77,6 +76,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bundler (>= 2.0)
   gem_guard!
   rake (~> 13.0)
   rspec (~> 3.0)
