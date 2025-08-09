@@ -48,11 +48,9 @@ RSpec.describe "gem_guard CLI", type: :integration do
         lockfile.flush
 
         output = capture_output do
-          begin
-            GemGuard::CLI.start(["scan", "--lockfile", lockfile.path])
-          rescue SystemExit
-            # Thor calls exit, which we need to catch in tests
-          end
+          GemGuard::CLI.start(["scan", "--lockfile", lockfile.path])
+        rescue SystemExit
+          # Thor calls exit, which we need to catch in tests
         end
 
         expect(output).to include("No vulnerabilities found!")
@@ -65,11 +63,9 @@ RSpec.describe "gem_guard CLI", type: :integration do
         lockfile.flush
 
         output = capture_output do
-          begin
-            GemGuard::CLI.start(["scan", "--lockfile", lockfile.path])
-          rescue SystemExit
-            # Thor calls exit, which we need to catch in tests
-          end
+          GemGuard::CLI.start(["scan", "--lockfile", lockfile.path])
+        rescue SystemExit
+          # Thor calls exit, which we need to catch in tests
         end
 
         expect(output).to include("No vulnerabilities found!")
@@ -82,11 +78,9 @@ RSpec.describe "gem_guard CLI", type: :integration do
         lockfile.flush
 
         output = capture_output do
-          begin
-            GemGuard::CLI.start(["scan", "--lockfile", lockfile.path, "--format", "json"])
-          rescue SystemExit
-            # Thor calls exit, which we need to catch in tests
-          end
+          GemGuard::CLI.start(["scan", "--lockfile", lockfile.path, "--format", "json"])
+        rescue SystemExit
+          # Thor calls exit, which we need to catch in tests
         end
 
         expect { JSON.parse(output) }.not_to raise_error
