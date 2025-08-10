@@ -101,7 +101,7 @@ RSpec.describe "gem_guard CLI", type: :integration do
 
     it "generates SPDX SBOM by default" do
       output = capture_output { GemGuard::CLI.start(["sbom", "--lockfile", "test_gemfile.lock"]) }
-      
+
       expect(output).to include('"spdxVersion"')
       expect(output).to include('"packages"')
       expect(output).to include("rack")
@@ -109,7 +109,7 @@ RSpec.describe "gem_guard CLI", type: :integration do
 
     it "generates CycloneDX SBOM when requested" do
       output = capture_output { GemGuard::CLI.start(["sbom", "--lockfile", "test_gemfile.lock", "--format", "cyclone-dx"]) }
-      
+
       expect(output).to include('"bomFormat": "CycloneDX"')
       expect(output).to include('"components"')
       expect(output).to include("rack")
@@ -117,9 +117,9 @@ RSpec.describe "gem_guard CLI", type: :integration do
 
     it "writes SBOM to file when output option is provided" do
       capture_output { GemGuard::CLI.start(["sbom", "--lockfile", "test_gemfile.lock", "--output", "test_sbom.json"]) }
-      
+
       expect(File.exist?("test_sbom.json")).to be true
-      
+
       content = File.read("test_sbom.json")
       expect(content).to include('"spdxVersion"')
       expect(content).to include("rack")
@@ -127,7 +127,7 @@ RSpec.describe "gem_guard CLI", type: :integration do
 
     it "uses custom project name when provided" do
       output = capture_output { GemGuard::CLI.start(["sbom", "--lockfile", "test_gemfile.lock", "--project", "my-app"]) }
-      
+
       expect(output).to include("my-app")
     end
 
@@ -144,7 +144,7 @@ RSpec.describe "gem_guard CLI", type: :integration do
     before do
       # Create a test Gemfile.lock with potentially suspicious dependencies
       File.write("test_typosquat.lock", typosquat_test_lockfile_content)
-      
+
       # Mock the TyposquatChecker to avoid real API calls
       allow_any_instance_of(GemGuard::TyposquatChecker).to receive(:check_dependencies).and_return(
         [
@@ -167,7 +167,7 @@ RSpec.describe "gem_guard CLI", type: :integration do
 
     it "detects potential typosquat dependencies" do
       output = capture_output { GemGuard::CLI.start(["typosquat", "--lockfile", "test_typosquat.lock"]) }
-      
+
       expect(output).to include("Potential Typosquat Dependencies Found")
       expect(output).to include("railz")
       expect(output).to include("rails")
@@ -176,7 +176,7 @@ RSpec.describe "gem_guard CLI", type: :integration do
 
     it "outputs JSON format when requested" do
       output = capture_output { GemGuard::CLI.start(["typosquat", "--lockfile", "test_typosquat.lock", "--format", "json"]) }
-      
+
       expect { JSON.parse(output) }.not_to raise_error
       parsed = JSON.parse(output)
       expect(parsed).to be_an(Array)
@@ -185,7 +185,7 @@ RSpec.describe "gem_guard CLI", type: :integration do
 
     it "writes report to file when output option is provided" do
       capture_output { GemGuard::CLI.start(["typosquat", "--lockfile", "test_typosquat.lock", "--output", "typosquat_report.json"]) }
-      
+
       expect(File.exist?("typosquat_report.json")).to be true
       content = File.read("typosquat_report.json")
       expect(content).to include("railz")
@@ -201,7 +201,7 @@ RSpec.describe "gem_guard CLI", type: :integration do
 
     it "handles no suspicious dependencies found" do
       allow_any_instance_of(GemGuard::TyposquatChecker).to receive(:check_dependencies).and_return([])
-      
+
       output = capture_output { GemGuard::CLI.start(["typosquat", "--lockfile", "test_typosquat.lock"]) }
       expect(output).to include("No potential typosquat dependencies found")
     end

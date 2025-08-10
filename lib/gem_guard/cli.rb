@@ -105,7 +105,7 @@ module GemGuard
     option :config, type: :string, desc: "Config file path"
     def typosquat
       config = Config.new(options[:config] || ".gemguard.yml")
-      
+
       lockfile_path = options[:lockfile] || config.lockfile_path
       format = options[:format] || config.output_format
       output_file = options[:output] || config.output_file
@@ -236,9 +236,9 @@ module GemGuard
       output = StringIO.new
       old_stdout = $stdout
       $stdout = output
-      
+
       Reporter.new.report(analysis, format: format)
-      
+
       $stdout = old_stdout
       output.string
     end
@@ -263,11 +263,11 @@ module GemGuard
 
       suspicious_gems.each do |gem_info|
         risk_emoji = case gem_info[:risk_level]
-                     when "critical" then "🔴"
-                     when "high" then "🟠"
-                     when "medium" then "🟡"
-                     else "🟢"
-                     end
+        when "critical" then "🔴"
+        when "high" then "🟠"
+        when "medium" then "🟡"
+        else "🟢"
+        end
 
         puts "\n#{risk_emoji} #{gem_info[:gem_name]} (#{gem_info[:version]})"
         puts "   Suspected target: #{gem_info[:suspected_target]}"
@@ -292,9 +292,9 @@ module GemGuard
         output = StringIO.new
         old_stdout = $stdout
         $stdout = output
-        
+
         display_typosquat_table(suspicious_gems)
-        
+
         $stdout = old_stdout
         output.string
       end

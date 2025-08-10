@@ -21,7 +21,7 @@ RSpec.describe GemGuard::TyposquatChecker do
       suspicious_gems = checker.check_dependencies(dependencies)
 
       expect(suspicious_gems.length).to be >= 1
-      
+
       railz_match = suspicious_gems.find { |sg| sg[:gem_name] == "railz" }
       expect(railz_match).not_to be_nil
       expect(railz_match[:suspected_target]).to eq("rails")
@@ -36,7 +36,7 @@ RSpec.describe GemGuard::TyposquatChecker do
 
     it "does not flag legitimate popular gems" do
       suspicious_gems = checker.check_dependencies(dependencies)
-      
+
       rails_match = suspicious_gems.find { |sg| sg[:gem_name] == "rails" }
       expect(rails_match).to be_nil
     end
@@ -52,7 +52,7 @@ RSpec.describe GemGuard::TyposquatChecker do
 
     it "handles API failures gracefully" do
       allow(Net::HTTP).to receive(:get_response).and_raise(StandardError.new("Network error"))
-      
+
       # Should fall back to hardcoded popular gems
       suspicious_gems = checker.check_dependencies(dependencies)
       expect(suspicious_gems).not_to be_empty
@@ -62,7 +62,7 @@ RSpec.describe GemGuard::TyposquatChecker do
       allow(Net::HTTP).to receive(:get_response).and_return(
         double(code: "200", body: "invalid json")
       )
-      
+
       suspicious_gems = checker.check_dependencies(dependencies)
       expect(suspicious_gems).not_to be_empty
     end
@@ -71,7 +71,7 @@ RSpec.describe GemGuard::TyposquatChecker do
       allow(Net::HTTP).to receive(:get_response).and_return(
         double(code: "500", body: "Server Error")
       )
-      
+
       suspicious_gems = checker.check_dependencies(dependencies)
       expect(suspicious_gems).not_to be_empty
     end
@@ -159,14 +159,14 @@ RSpec.describe GemGuard::TyposquatChecker do
       it "returns false when cache is expired" do
         checker.instance_variable_set(:@popular_gems_cache, [])
         checker.instance_variable_set(:@cache_timestamp, Time.now - 7200) # 2 hours ago
-        
+
         expect(checker.send(:cache_valid?)).to be false
       end
 
       it "returns true when cache is valid" do
         checker.instance_variable_set(:@popular_gems_cache, [])
         checker.instance_variable_set(:@cache_timestamp, Time.now - 1800) # 30 minutes ago
-        
+
         expect(checker.send(:cache_valid?)).to be true
       end
     end
@@ -176,11 +176,11 @@ RSpec.describe GemGuard::TyposquatChecker do
 
   def popular_gems_json
     [
-      { "name" => "rails", "downloads" => 100_000_000 },
-      { "name" => "nokogiri", "downloads" => 50_000_000 },
-      { "name" => "rake", "downloads" => 80_000_000 },
-      { "name" => "json", "downloads" => 70_000_000 },
-      { "name" => "bundler", "downloads" => 90_000_000 }
+      {"name" => "rails", "downloads" => 100_000_000},
+      {"name" => "nokogiri", "downloads" => 50_000_000},
+      {"name" => "rake", "downloads" => 80_000_000},
+      {"name" => "json", "downloads" => 70_000_000},
+      {"name" => "bundler", "downloads" => 90_000_000}
     ].to_json
   end
 end
