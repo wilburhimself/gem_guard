@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    gem_guard (1.1.0)
+    gem_guard (1.1.1)
       json (~> 2.0)
       thor (~> 1.0)
 

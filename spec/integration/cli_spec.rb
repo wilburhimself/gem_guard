@@ -216,6 +216,7 @@ RSpec.describe "gem_guard CLI", type: :integration do
   end
 
   describe "fix command" do
+    let(:cli) { GemGuard::CLI.new }
     let(:temp_dir) { Dir.mktmpdir }
     let(:test_lockfile) { File.join(temp_dir, "Gemfile.lock") }
     let(:test_gemfile) { File.join(temp_dir, "Gemfile") }
@@ -269,7 +270,11 @@ RSpec.describe "gem_guard CLI", type: :integration do
         )
       ])
 
-      expect { cli.fix }.to exit_with_code(0)
+      expect do
+        capture_output { cli.fix }
+      end.to raise_error(SystemExit) do |error|
+        expect(error.status).to eq(0)
+      end
     end
 
     it "handles no vulnerabilities gracefully" do
@@ -278,28 +283,42 @@ RSpec.describe "gem_guard CLI", type: :integration do
       # Mock no vulnerabilities
       allow_any_instance_of(GemGuard::VulnerabilityFetcher).to receive(:fetch_for).and_return([])
 
-      output = capture_output { expect { cli.fix }.to exit_with_code(0) }
-      expect(output).to include("No vulnerabilities found")
+      expect do
+        output = capture_output { cli.fix }
+        expect(output).to include("No vulnerabilities found")
+      end.to raise_error(SystemExit) do |error|
+        expect(error.status).to eq(0)
+      end
     end
 
     it "handles missing Gemfile gracefully" do
       FileUtils.rm(test_gemfile)
       cli.options = {lockfile: test_lockfile, gemfile: test_gemfile}
 
-      output = capture_output { expect { cli.fix }.to exit_with_code(1) }
-      expect(output).to include("Gemfile not found")
+      expect do
+        output = capture_output { cli.fix }
+        expect(output).to include("Gemfile not found")
+      end.to raise_error(SystemExit) do |error|
+        expect(error.status).to eq(2)
+      end
     end
 
     it "handles missing Gemfile.lock gracefully" do
       FileUtils.rm(test_lockfile)
       cli.options = {lockfile: test_lockfile, gemfile: test_gemfile}
 
-      output = capture_output { expect { cli.fix }.to exit_with_code(1) }
-      expect(output).to include("Gemfile.lock not found")
+      expect do
+        output = capture_output { cli.fix }
+        expect(output).to include("Gemfile.lock not found")
+      end.to raise_error(SystemExit) do |error|
+        expect(error.status).to eq(2)
+      end
     end
   end
 
   describe "version command" do
+    let(:cli) { GemGuard::CLI.new }
+    
     it "displays the version" do
       output = capture_output { cli.version }
       expect(output).to include(GemGuard::VERSION)
