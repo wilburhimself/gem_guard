@@ -318,7 +318,7 @@ RSpec.describe "gem_guard CLI", type: :integration do
 
   describe "version command" do
     let(:cli) { GemGuard::CLI.new }
-    
+
     it "displays the version" do
       output = capture_output { cli.version }
       expect(output).to include(GemGuard::VERSION)
