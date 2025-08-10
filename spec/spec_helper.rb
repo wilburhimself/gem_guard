@@ -24,7 +24,7 @@ RSpec.configure do |config|
   config.profile_examples = 10
   config.order = :random
   Kernel.srand config.seed
-  
+
   # Force RSpec to exit with 0 when all tests pass
   config.after(:suite) do
     if RSpec.configuration.reporter.failed_examples.empty?
