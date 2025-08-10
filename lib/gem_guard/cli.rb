@@ -190,6 +190,87 @@ module GemGuard
       end
     end
 
+    desc "fix", "Automatically fix vulnerable dependencies"
+    option :lockfile, type: :string, desc: "Path to Gemfile.lock"
+    option :gemfile, type: :string, desc: "Path to Gemfile"
+    option :dry_run, type: :boolean, desc: "Show planned fixes without applying them"
+    option :interactive, type: :boolean, desc: "Ask for confirmation before applying fixes"
+    option :no_backup, type: :boolean, desc: "Skip creating backup of Gemfile.lock"
+    option :config, type: :string, desc: "Config file path"
+    def fix
+      config = Config.new(options[:config] || ".gemguard.yml")
+
+      lockfile_path = options[:lockfile] || config.lockfile_path
+      gemfile_path = options[:gemfile] || "Gemfile"
+      dry_run = options[:dry_run] || false
+      interactive = options[:interactive] || false
+      create_backup = !options[:no_backup]
+
+      unless File.exist?(lockfile_path)
+        puts "Error: #{lockfile_path} not found"
+        exit EXIT_ERROR
+      end
+
+      unless File.exist?(gemfile_path)
+        puts "Error: #{gemfile_path} not found. Auto-fix requires a Gemfile."
+        exit EXIT_ERROR
+      end
+
+      begin
+        # First, scan for vulnerabilities
+        dependencies = Parser.new.parse(lockfile_path)
+        vulnerabilities = VulnerabilityFetcher.new.fetch_for(dependencies)
+        analysis = Analyzer.new.analyze(dependencies, vulnerabilities)
+
+        if analysis.vulnerable_dependencies.empty?
+          puts "✅ No vulnerabilities found. Nothing to fix!"
+          exit EXIT_SUCCESS
+        end
+
+        # Apply fixes
+        auto_fixer = AutoFixer.new(lockfile_path, gemfile_path)
+        result = auto_fixer.fix_vulnerabilities(
+          analysis.vulnerable_dependencies,
+          dry_run: dry_run,
+          interactive: interactive,
+          backup: create_backup
+        )
+
+        case result[:status]
+        when :no_fixes_needed
+          puts "ℹ️  #{result[:message]}"
+          exit EXIT_SUCCESS
+        when :dry_run
+          puts "🔍 Dry Run Results:"
+          puts "=" * 40
+          result[:fixes].each do |fix|
+            puts "#{fix[:gem_name]}: #{fix[:current_version]} → #{fix[:target_version]}"
+            puts "  Fixes: #{fix[:vulnerability_id]} (#{fix[:severity]})"
+          end
+          puts "\n#{result[:message]}"
+          puts "Run without --dry-run to apply these fixes."
+          exit EXIT_SUCCESS
+        when :cancelled
+          puts "❌ #{result[:message]}"
+          exit EXIT_SUCCESS
+        when :completed
+          puts "🎉 #{result[:message]}"
+          puts "\n📋 Applied Fixes:"
+          result[:fixes].each do |fix|
+            puts "✅ #{fix[:gem_name]}: #{fix[:current_version]} → #{fix[:target_version]}"
+          end
+          puts "\n💡 Run 'gem_guard scan' to verify fixes."
+          exit EXIT_SUCCESS
+        else
+          puts "❌ Unexpected error during fix operation"
+          exit EXIT_ERROR
+        end
+      rescue => e
+        puts "Error: #{e.message}"
+        exit EXIT_ERROR
+      end
+    end
+
     desc "version", "Show gem_guard version"
     def version
       puts GemGuard::VERSION

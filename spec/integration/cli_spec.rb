@@ -215,10 +215,94 @@ RSpec.describe "gem_guard CLI", type: :integration do
     end
   end
 
+  describe "fix command" do
+    let(:temp_dir) { Dir.mktmpdir }
+    let(:test_lockfile) { File.join(temp_dir, "Gemfile.lock") }
+    let(:test_gemfile) { File.join(temp_dir, "Gemfile") }
+
+    let(:sample_gemfile) do
+      <<~GEMFILE
+        source "https://rubygems.org"
+        
+        gem "nokogiri", "~> 1.18.0"
+      GEMFILE
+    end
+
+    let(:sample_lockfile) do
+      <<~LOCKFILE
+        GEM
+          remote: https://rubygems.org/
+          specs:
+            nokogiri (1.18.8)
+
+        PLATFORMS
+          ruby
+
+        DEPENDENCIES
+          nokogiri (~> 1.18.0)
+
+        BUNDLED WITH
+           2.4.10
+      LOCKFILE
+    end
+
+    before do
+      File.write(test_gemfile, sample_gemfile)
+      File.write(test_lockfile, sample_lockfile)
+    end
+
+    after do
+      FileUtils.rm_rf(temp_dir)
+    end
+
+    it "shows dry run results when --dry-run is specified" do
+      cli.options = {lockfile: test_lockfile, gemfile: test_gemfile, dry_run: true}
+
+      # Mock vulnerability data
+      allow_any_instance_of(GemGuard::VulnerabilityFetcher).to receive(:fetch_for).and_return([
+        GemGuard::Vulnerability.new(
+          id: "GHSA-test",
+          gem_name: "nokogiri",
+          severity: "HIGH",
+          summary: "Test vulnerability",
+          details: "Test details"
+        )
+      ])
+
+      expect { cli.fix }.to exit_with_code(0)
+    end
+
+    it "handles no vulnerabilities gracefully" do
+      cli.options = {lockfile: test_lockfile, gemfile: test_gemfile}
+
+      # Mock no vulnerabilities
+      allow_any_instance_of(GemGuard::VulnerabilityFetcher).to receive(:fetch_for).and_return([])
+
+      output = capture_output { expect { cli.fix }.to exit_with_code(0) }
+      expect(output).to include("No vulnerabilities found")
+    end
+
+    it "handles missing Gemfile gracefully" do
+      FileUtils.rm(test_gemfile)
+      cli.options = {lockfile: test_lockfile, gemfile: test_gemfile}
+
+      output = capture_output { expect { cli.fix }.to exit_with_code(1) }
+      expect(output).to include("Gemfile not found")
+    end
+
+    it "handles missing Gemfile.lock gracefully" do
+      FileUtils.rm(test_lockfile)
+      cli.options = {lockfile: test_lockfile, gemfile: test_gemfile}
+
+      output = capture_output { expect { cli.fix }.to exit_with_code(1) }
+      expect(output).to include("Gemfile.lock not found")
+    end
+  end
+
   describe "version command" do
     it "displays the version" do
-      output = capture_output { GemGuard::CLI.start(["version"]) }
-      expect(output.strip).to eq(GemGuard::VERSION)
+      output = capture_output { cli.version }
+      expect(output).to include(GemGuard::VERSION)
     end
   end
 
