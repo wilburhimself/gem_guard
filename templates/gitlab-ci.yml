@@ -1,0 +1,112 @@
+# GitLab CI configuration for GemGuard security scanning
+# Copy this content to your .gitlab-ci.yml file
+
+stages:
+  - security
+  - report
+
+variables:
+  BUNDLE_PATH: vendor/bundle
+  BUNDLE_JOBS: 4
+  BUNDLE_RETRY: 3
+
+.ruby_template: &ruby_template
+  image: ruby:3.3
+  before_script:
+    - gem install bundler
+    - bundle install --path $BUNDLE_PATH
+    - gem install gem_guard
+  cache:
+    key: gems-$CI_COMMIT_REF_SLUG
+    paths:
+      - vendor/bundle/
+
+security_scan:
+  <<: *ruby_template
+  stage: security
+  script:
+    - echo "Running GemGuard security scan..."
+    - gem_guard scan --format json --output security-report.json
+    - gem_guard scan --format table
+    - echo "Generating SBOM..."
+    - gem_guard sbom --format spdx --output sbom-spdx.json
+    - gem_guard sbom --format cyclone-dx --output sbom-cyclone.json
+  artifacts:
+    reports:
+      # GitLab security report format (if you want to convert)
+      dependency_scanning: security-report.json
+    paths:
+      - security-report.json
+      - sbom-spdx.json
+      - sbom-cyclone.json
+    expire_in: 30 days
+    when: always
+  allow_failure: false
+  only:
+    - main
+    - develop
+    - merge_requests
+
+security_scan_ruby_3_1:
+  <<: *ruby_template
+  image: ruby:3.1
+  stage: security
+  script:
+    - gem_guard scan --format json --output security-report-ruby31.json
+    - gem_guard scan
+  artifacts:
+    paths:
+      - security-report-ruby31.json
+    expire_in: 7 days
+  only:
+    - schedules
+
+security_scan_ruby_3_2:
+  <<: *ruby_template
+  image: ruby:3.2
+  stage: security
+  script:
+    - gem_guard scan --format json --output security-report-ruby32.json
+    - gem_guard scan
+  artifacts:
+    paths:
+      - security-report-ruby32.json
+    expire_in: 7 days
+  only:
+    - schedules
+
+# Optional: Create a summary report
+security_report:
+  stage: report
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache jq
+  script:
+    - |
+      echo "## Security Scan Summary" > security-summary.md
+      echo "" >> security-summary.md
+      if [ -f security-report.json ]; then
+        VULN_COUNT=$(jq '.vulnerabilities | length' security-report.json)
+        HIGH_COUNT=$(jq '.high_severity_count // 0' security-report.json)
+        echo "- **Total vulnerabilities found:** $VULN_COUNT" >> security-summary.md
+        echo "- **High/Critical severity:** $HIGH_COUNT" >> security-summary.md
+        echo "" >> security-summary.md
+        
+        if [ "$VULN_COUNT" -gt 0 ]; then
+          echo "⚠️ **Action required:** Please review and address the identified vulnerabilities." >> security-summary.md
+        else
+          echo "✅ **No vulnerabilities found!**" >> security-summary.md
+        fi
+      else
+        echo "❌ **Error:** Security report not found." >> security-summary.md
+      fi
+      cat security-summary.md
+  artifacts:
+    paths:
+      - security-summary.md
+    expire_in: 30 days
+  dependencies:
+    - security_scan
+  only:
+    - main
+    - develop

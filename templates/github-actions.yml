@@ -1,0 +1,85 @@
+# GitHub Actions workflow for GemGuard security scanning
+# Copy this file to .github/workflows/gemguard.yml in your repository
+
+name: Security Scan with GemGuard
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        ruby-version: ['3.1', '3.2', '3.3']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Ruby ${{ matrix.ruby-version }}
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+        bundler-cache: true
+    
+    - name: Install GemGuard
+      run: gem install gem_guard
+    
+    - name: Run GemGuard vulnerability scan
+      run: |
+        gem_guard scan --format json --output security-report.json
+        gem_guard scan --format table
+    
+    - name: Generate SBOM
+      run: |
+        gem_guard sbom --format spdx --output sbom-spdx.json
+        gem_guard sbom --format cyclone-dx --output sbom-cyclone.json
+    
+    - name: Upload security artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-reports-ruby-${{ matrix.ruby-version }}
+        path: |
+          security-report.json
+          sbom-spdx.json
+          sbom-cyclone.json
+        retention-days: 30
+    
+    - name: Comment PR with security report
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          try {
+            const report = fs.readFileSync('security-report.json', 'utf8');
+            const data = JSON.parse(report);
+            
+            if (data.vulnerabilities && data.vulnerabilities.length > 0) {
+              const comment = `## 🚨 Security Vulnerabilities Found
+              
+              GemGuard detected ${data.vulnerabilities.length} vulnerabilities in this PR.
+              
+              Please review the security report artifact for details.
+              
+              **High/Critical vulnerabilities:** ${data.high_severity_count || 0}
+              `;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+          } catch (error) {
+            console.log('No security report found or error reading report');
+          }

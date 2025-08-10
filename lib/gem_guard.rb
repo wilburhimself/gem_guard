@@ -4,6 +4,7 @@ require_relative "gem_guard/vulnerability_fetcher"
 require_relative "gem_guard/analyzer"
 require_relative "gem_guard/reporter"
 require_relative "gem_guard/sbom_generator"
+require_relative "gem_guard/config"
 require_relative "gem_guard/cli"
 
 module GemGuard
