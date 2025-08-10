@@ -53,8 +53,9 @@ RSpec.describe GemGuard::Config do
       end
 
       it "falls back to defaults and shows warning" do
-        expect { described_class.new(config_path) }.to output(/Warning: Invalid YAML/).to_stdout
-        config = described_class.new(config_path)
+        # Capture both the warning output and create the config in one expectation
+        config = nil
+        expect { config = described_class.new(config_path) }.to output(/Warning: Invalid YAML/).to_stdout
         expect(config.get("format")).to eq("table")
       end
     end
