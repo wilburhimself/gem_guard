@@ -16,7 +16,9 @@ module GemGuard
         )
       end
 
-      dependencies
+      # Deduplicate dependencies by name to handle platform-specific gems
+      # (e.g., nokogiri-arm64-darwin, nokogiri-x86_64-darwin, etc.)
+      dependencies.uniq { |dep| dep.name }
     end
 
     private

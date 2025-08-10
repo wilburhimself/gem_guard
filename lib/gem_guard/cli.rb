@@ -98,8 +98,50 @@ module GemGuard
       end
     end
 
+    desc "typosquat", "Check for potential typosquat dependencies"
+    option :lockfile, type: :string, default: "Gemfile.lock", desc: "Path to Gemfile.lock"
+    option :format, type: :string, default: "table", desc: "Output format (table, json)"
+    option :output, type: :string, desc: "Output file path"
+    option :config, type: :string, desc: "Config file path"
+    def typosquat
+      config = Config.new(options[:config] || ".gemguard.yml")
+      
+      lockfile_path = options[:lockfile] || config.lockfile_path
+      format = options[:format] || config.output_format
+      output_file = options[:output] || config.output_file
+
+      unless File.exist?(lockfile_path)
+        puts "Error: #{lockfile_path} not found"
+        exit EXIT_ERROR
+      end
+
+      begin
+        dependencies = Parser.new.parse(lockfile_path)
+        checker = TyposquatChecker.new
+        suspicious_gems = checker.check_dependencies(dependencies)
+
+        if output_file
+          output_content = format_typosquat_output(suspicious_gems, format)
+          File.write(output_file, output_content)
+          puts "Typosquat report written to #{output_file}"
+        else
+          display_typosquat_results(suspicious_gems, format)
+        end
+
+        # Exit with appropriate code
+        if suspicious_gems.any? { |sg| sg[:risk_level] == "critical" || sg[:risk_level] == "high" }
+          exit EXIT_VULNERABILITIES_FOUND
+        else
+          exit EXIT_SUCCESS
+        end
+      rescue => e
+        puts "Error: #{e.message}"
+        exit EXIT_ERROR
+      end
+    end
+
     desc "config", "Manage configuration"
-    option :init, type: :boolean, desc: "Initialize a new .gemguard.yml config file"
+    option :init, type: :boolean, desc: "Initialize default config file"
     option :show, type: :boolean, desc: "Show current configuration"
     option :path, type: :string, default: ".gemguard.yml", desc: "Config file path"
     def config
@@ -165,9 +207,7 @@ module GemGuard
       return analysis unless severity_threshold
 
       filtered_vulnerable_deps = analysis.vulnerable_dependencies.select do |vuln_dep|
-        vuln_dep.vulnerabilities.any? do |vuln|
-          config.meets_severity_threshold?(extract_severity_level(vuln.severity))
-        end
+        config.meets_severity_threshold?(extract_severity_level(vuln_dep.vulnerability.severity))
       end
 
       # Create new analysis with filtered vulnerabilities
@@ -193,12 +233,75 @@ module GemGuard
     end
 
     def capture_report_output(analysis, format)
+      output = StringIO.new
       old_stdout = $stdout
-      $stdout = StringIO.new
+      $stdout = output
+      
       Reporter.new.report(analysis, format: format)
-      $stdout.string
-    ensure
+      
       $stdout = old_stdout
+      output.string
+    end
+
+    def display_typosquat_results(suspicious_gems, format)
+      if suspicious_gems.empty?
+        puts "No potential typosquat dependencies found."
+        return
+      end
+
+      case format.downcase
+      when "json"
+        puts JSON.pretty_generate(suspicious_gems)
+      else
+        display_typosquat_table(suspicious_gems)
+      end
+    end
+
+    def display_typosquat_table(suspicious_gems)
+      puts "\n🚨 Potential Typosquat Dependencies Found:"
+      puts "=" * 80
+
+      suspicious_gems.each do |gem_info|
+        risk_emoji = case gem_info[:risk_level]
+                     when "critical" then "🔴"
+                     when "high" then "🟠"
+                     when "medium" then "🟡"
+                     else "🟢"
+                     end
+
+        puts "\n#{risk_emoji} #{gem_info[:gem_name]} (#{gem_info[:version]})"
+        puts "   Suspected target: #{gem_info[:suspected_target]}"
+        puts "   Similarity: #{(gem_info[:similarity_score] * 100).round(1)}%"
+        puts "   Risk level: #{gem_info[:risk_level].upcase}"
+        puts "   Target downloads: #{number_with_commas(gem_info[:target_downloads])}"
+      end
+
+      puts "\n" + "=" * 80
+      puts "💡 Review these dependencies carefully. Consider:"
+      puts "   • Verifying the gem's legitimacy on rubygems.org"
+      puts "   • Checking the gem's source code repository"
+      puts "   • Looking for official documentation or endorsements"
+      puts "   • Comparing with the suspected target gem"
+    end
+
+    def format_typosquat_output(suspicious_gems, format)
+      case format.downcase
+      when "json"
+        JSON.pretty_generate(suspicious_gems)
+      else
+        output = StringIO.new
+        old_stdout = $stdout
+        $stdout = output
+        
+        display_typosquat_table(suspicious_gems)
+        
+        $stdout = old_stdout
+        output.string
+      end
+    end
+
+    def number_with_commas(number)
+      number.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
     end
   end
 end

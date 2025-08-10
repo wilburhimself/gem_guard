@@ -8,7 +8,10 @@ module GemGuard
 
         next if matching_vulns.empty?
 
-        matching_vulns.each do |vulnerability|
+        # Deduplicate vulnerabilities by ID to avoid duplicate entries for the same vulnerability
+        unique_vulns = matching_vulns.uniq { |vuln| vuln.id }
+
+        unique_vulns.each do |vulnerability|
           if version_affected?(dependency.version, vulnerability)
             vulnerable_dependencies << VulnerableDependency.new(
               dependency: dependency,

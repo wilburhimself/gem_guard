@@ -46,8 +46,52 @@ GemGuard itself implements several security best practices:
 
 When using GemGuard:
 
-- Keep GemGuard updated to the latest version
-- Review vulnerability reports carefully before applying fixes
+- **Keep GemGuard updated** to the latest version for security patches
+- **Review vulnerability reports** carefully before applying fixes
+- **Validate SBOM outputs** before sharing with external parties
+- **Use secure channels** when transmitting security reports
+- **Configure ignore lists** carefully to avoid missing critical vulnerabilities
+- **Monitor CI/CD pipelines** for security scan failures
+
+## Threat Model
+
+GemGuard protects against:
+
+- **Known Vulnerabilities**: CVEs in your dependency chain
+- **Typosquat Attacks**: Malicious gems with similar names to popular packages
+- **Supply Chain Attacks**: Compromised or malicious dependencies
+- **Outdated Dependencies**: Gems with known security issues
+
+## Data Handling
+
+GemGuard:
+
+- **Does not collect** personal or sensitive data
+- **Queries public APIs** (OSV.dev) for vulnerability information
+- **Processes locally** your Gemfile.lock and dependency information
+- **Does not transmit** your code or proprietary information
+- **Caches vulnerability data** temporarily for performance
+
+## Security Updates
+
+We provide security updates through:
+
+- **GitHub Security Advisories** for critical vulnerabilities
+- **RubyGems.org releases** with security patches
+- **Email notifications** to security@wilburhimself.com subscribers
+- **GitHub releases** with detailed changelogs
+
+## Contact
+
+For security-related inquiries:
+
+- **Email**: security@wilburhimself.com
+- **PGP Key**: Available upon request
+- **Response Time**: 48 hours for initial response
+
+---
+
+*Last updated: January 2025*
 - Use GemGuard in your CI/CD pipeline to catch vulnerabilities early
 - Consider the source and severity of reported vulnerabilities
 
