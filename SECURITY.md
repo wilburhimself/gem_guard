@@ -10,7 +10,11 @@ We actively support the following versions of GemGuard:
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability within GemGuard, please send an email to **security@wilburhimself.com**. All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability within GemGuard, please submit a private report via GitHub Security Advisories:
+
+https://github.com/wilburhimself/gem_guard/security/advisories/new
+
+All security vulnerabilities will be promptly addressed through the advisory workflow.
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
@@ -78,16 +82,15 @@ We provide security updates through:
 
 - **GitHub Security Advisories** for critical vulnerabilities
 - **RubyGems.org releases** with security patches
-- **Email notifications** to security@wilburhimself.com subscribers
 - **GitHub releases** with detailed changelogs
 
 ## Contact
 
-For security-related inquiries:
+For security-related inquiries and reports, use GitHub Security Advisories to contact maintainers privately:
 
-- **Email**: security@wilburhimself.com
-- **PGP Key**: Available upon request
-- **Response Time**: 48 hours for initial response
+https://github.com/wilburhimself/gem_guard/security/advisories/new
+
+We do not monitor any dedicated security email inbox. Initial response within 48 hours.
 
 ---
 
@@ -97,6 +100,5 @@ For security-related inquiries:
 
 ## Contact
 
-For security-related questions or concerns, contact:
-- Email: security@wilburhimself.com
+For general questions, reach out via GitHub Discussions or issues as appropriate:
 - GitHub: [@wilburhimself](https://github.com/wilburhimself)

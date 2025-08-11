@@ -355,7 +355,7 @@ We welcome contributions! Here's how you can help:
 
 ### Development Guidelines
 
-- Follow DHH-style Ruby: pragmatic, intention-revealing, minimal abstractions
+- Follow pragmatic, intention-revealing, minimal abstractions
 - Use strict outside-in TDD with RSpec
 - Maintain 100% test coverage
 - Follow StandardRB for code style
