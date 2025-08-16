@@ -26,6 +26,20 @@ jobs:
     - name: Run tests
       run: bundle exec rspec
     
+    - name: Upload to Codecov
+      if: always()
+      uses: codecov/codecov-action@v4
+      with:
+        flags: ruby-${{ matrix.ruby-version }}
+        fail_ci_if_error: false
+
+    - name: Upload coverage
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage
+        path: coverage
+    
     - name: Run linter
       run: bundle exec rake standard
       if: matrix.ruby-version == '3.3'

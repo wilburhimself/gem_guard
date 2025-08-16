@@ -2,6 +2,7 @@
 
 [![Gem Version](https://badge.fury.io/rb/gem_guard.svg)](https://badge.fury.io/rb/gem_guard)
 [![CI](https://github.com/wilburhimself/gem_guard/workflows/CI/badge.svg)](https://github.com/wilburhimself/gem_guard/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/wilburhimself/gem_guard/branch/main/graph/badge.svg)](https://codecov.io/gh/wilburhimself/gem_guard)
 [![Release](https://github.com/wilburhimself/gem_guard/workflows/Release/badge.svg)](https://github.com/wilburhimself/gem_guard/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Security](https://img.shields.io/badge/Security-Policy-blue.svg)](SECURITY.md)
