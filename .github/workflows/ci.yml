@@ -38,6 +38,8 @@ jobs:
         use_oidc: true
         flags: ruby-${{ matrix.ruby-version }}
         fail_ci_if_error: false
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Upload coverage
       if: always() && matrix.ruby-version == '3.3'
