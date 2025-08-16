@@ -27,14 +27,14 @@ jobs:
       run: bundle exec rspec
     
     - name: Upload to Codecov
-      if: always()
+      if: always() && matrix.ruby-version == '3.3'
       uses: codecov/codecov-action@v4
       with:
         flags: ruby-${{ matrix.ruby-version }}
         fail_ci_if_error: false
 
     - name: Upload coverage
-      if: always()
+      if: always() && matrix.ruby-version == '3.3'
       uses: actions/upload-artifact@v4
       with:
         name: coverage
