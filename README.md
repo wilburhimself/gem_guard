@@ -122,6 +122,38 @@ Details:
    🔧 Fix: bundle update thor --to 1.4.0
 ```
 
+### 🛠 Auto-fix Vulnerable Dependencies
+
+Use `fix` to apply recommended upgrades. Start with a dry run to preview changes.
+
+```bash
+# Preview only — shows what would change, does not modify files
+gem_guard fix --dry-run
+
+# Interactively confirm each upgrade (uses tty-prompt)
+gem_guard fix --interactive
+
+# Apply fixes non-interactively
+gem_guard fix
+```
+
+Dry run output example:
+
+```
+🔍 Dry run — no files will be modified.
+========================================
+✅ Would update nokogiri 1.12.0 → 1.14.3
+
+Dry run completed. 1 fixes planned.
+Run without --dry-run to apply these fixes.
+```
+
+Behavior notes:
+
+- **Interactive**: You’ll be asked per gem: `Upgrade nokogiri 1.12.0 → 1.14.3?` Answering “no” skips that gem.
+- **Backups**: A `Gemfile.lock.backup.YYYYMMDD_HHMMSS` is created only if at least one fix is approved/applied.
+- **Requirements**: `Gemfile` and `Gemfile.lock` must exist. Interactive prompts require a TTY-capable environment.
+
 ### 🎯 Typosquat Detection
 
 **Basic typosquat check:**

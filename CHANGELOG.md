@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-08-17
+
+### Added
+- Interactive fix flow: `gem_guard fix --interactive` prompts per gem (via `tty-prompt`).
+
+### Changed
+- Dry-run output refined to: `✅ Would update <gem> <from> → <to>` for clarity.
+
+### Dependencies
+- Add runtime dependency: `tty-prompt ~> 0.23`.
+
 ## [1.1.2] - 2025-08-11
 
 ### Added
