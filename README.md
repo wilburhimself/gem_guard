@@ -98,6 +98,8 @@ gem_guard scan --format json --output vulnerabilities.json
 gem_guard scan --fail-on-vulnerabilities --severity-threshold high
 ```
 
+> Exit codes: 0 = success, 1 = vulnerabilities found (only when `--fail-on-vulnerabilities` is set), 2 = error. See [Exit Codes](#exit-codes).
+
 **Example output:**
 ```
 🚨 Security Vulnerabilities Found
@@ -154,6 +156,8 @@ Behavior notes:
 - **Backups**: A `Gemfile.lock.backup.YYYYMMDD_HHMMSS` is created only if at least one fix is approved/applied.
 - **Requirements**: `Gemfile` and `Gemfile.lock` must exist. Interactive prompts require a TTY-capable environment.
 
+> Exit codes: 0 = success, 2 = error. See [Exit Codes](#exit-codes). Use `--verbose` for diagnostics if a file/permission error occurs.
+
 ### 🎯 Typosquat Detection
 
 **Basic typosquat check:**
@@ -182,6 +186,8 @@ gem_guard typosquat --format json --output typosquats.json
    ⚠️  This gem name is suspiciously similar to the popular gem 'rails'
    🔧 Consider: Did you mean 'rails'? Review this dependency carefully.
 ```
+
+> Exit codes: 0 = no high/critical risks, 1 = high/critical typosquat risks detected, 2 = error. See [Exit Codes](#exit-codes). Use `--verbose` for diagnostics on file errors.
 
 ### 📋 SBOM Generation
 
@@ -216,6 +222,8 @@ gem_guard sbom --project my-app --output sbom.json
   "relationships": [...]
 }
 ```
+
+> Exit codes: 0 = success, 2 = error. See [Exit Codes](#exit-codes). Use `--verbose` for diagnostics on file errors.
 
 ## ⚙️ Configuration
 
@@ -388,6 +396,12 @@ If you continue to see `FileError`, re-run with verbose shell tracing to confirm
 ```bash
 set -x
 gem_guard scan --output tmp/vulns.json
+```
+
+You can also add GemGuard diagnostics:
+
+```bash
+gem_guard scan --verbose --output tmp/vulns.json
 ```
 
 ## Development

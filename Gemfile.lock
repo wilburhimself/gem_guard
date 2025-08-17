@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    gem_guard (1.2.0)
+    gem_guard (1.2.1)
       json (~> 2.0)
       thor (~> 1.0)
       tty-prompt (~> 0.23)

@@ -8,6 +8,9 @@ module GemGuard
     EXIT_VULNERABILITIES_FOUND = 1
     EXIT_ERROR = 2
 
+    # Global options
+    class_option :verbose, type: :boolean, desc: "Print extra diagnostics on errors"
+
     desc "scan", "Scan dependencies for known vulnerabilities"
     option :format, type: :string, desc: "Output format (table, json)"
     option :lockfile, type: :string, desc: "Path to Gemfile.lock"
@@ -27,6 +30,7 @@ module GemGuard
 
       unless File.exist?(lockfile_path)
         puts "Error: #{lockfile_path} not found"
+        verbose_diagnostics([lockfile_path])
         exit EXIT_ERROR
       end
 
@@ -62,6 +66,7 @@ module GemGuard
         exit EXIT_ERROR
       rescue GemGuard::FileError => e
         puts "File error: #{e.message}"
+        verbose_diagnostics([lockfile_path, output_file].compact)
         exit EXIT_ERROR
       rescue => e
         puts "Error: #{e.message}"
@@ -79,6 +84,7 @@ module GemGuard
 
       unless File.exist?(lockfile_path)
         puts "Error: #{lockfile_path} not found"
+        verbose_diagnostics([lockfile_path])
         exit EXIT_ERROR
       end
 
@@ -119,6 +125,7 @@ module GemGuard
 
       unless File.exist?(lockfile_path)
         puts "Error: #{lockfile_path} not found"
+        verbose_diagnostics([lockfile_path])
         exit EXIT_ERROR
       end
 
@@ -147,6 +154,7 @@ module GemGuard
         exit EXIT_ERROR
       rescue GemGuard::FileError => e
         puts "File error: #{e.message}"
+        verbose_diagnostics([lockfile_path, output_file].compact)
         exit EXIT_ERROR
       rescue => e
         puts "Error: #{e.message}"
@@ -222,11 +230,13 @@ module GemGuard
 
       unless File.exist?(lockfile_path)
         puts "Error: #{lockfile_path} not found"
+        verbose_diagnostics([lockfile_path])
         exit EXIT_ERROR
       end
 
       unless File.exist?(gemfile_path)
         puts "Error: #{gemfile_path} not found. Auto-fix requires a Gemfile."
+        verbose_diagnostics([gemfile_path])
         exit EXIT_ERROR
       end
 
@@ -403,6 +413,20 @@ module GemGuard
 
     def number_with_commas(number)
       number.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
+    end
+
+    def verbose_diagnostics(paths)
+      return unless options[:verbose]
+      puts "\n[Diagnostics]"
+      puts "cwd: #{Dir.pwd}"
+      Array(paths).each do |p|
+        exists = File.exist?(p)
+        readable = exists ? File.readable?(p) : false
+        writable_dir = File.writable?(File.directory?(p) ? p : File.dirname(p))
+        puts "- #{p}: exists=#{exists}, readable=#{readable}, writable_dir=#{writable_dir}"
+      rescue => ex
+        puts "- #{p}: (error checking permissions: #{ex.message})"
+      end
     end
   end
 end
