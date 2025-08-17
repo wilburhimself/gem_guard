@@ -27,6 +27,13 @@ jobs:
       run: |
         bundle exec rspec --format documentation --backtrace; status=$?
         echo "RSpec exit status: $status"
+        if [ "$status" -ne 0 ]; then
+          echo "Diagnostics:"
+          ruby -v
+          bundler -v || true
+          ls -lah
+          git status --porcelain || true
+        fi
         exit $status
     
     # SimpleCov/coverage upload removed from CI by request
