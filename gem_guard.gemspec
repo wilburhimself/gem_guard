@@ -29,6 +29,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "thor", "~> 1.0"
   spec.add_dependency "json", "~> 2.0"
+  spec.add_dependency "tty-prompt", "~> 0.23"
 
   spec.add_development_dependency "bundler", ">= 2.0"
   spec.add_development_dependency "rspec", "~> 3.0"

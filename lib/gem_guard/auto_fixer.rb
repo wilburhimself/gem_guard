@@ -1,5 +1,6 @@
 require "bundler"
 require "fileutils"
+require "tty-prompt"
 
 module GemGuard
   class AutoFixer
@@ -32,13 +33,12 @@ module GemGuard
         return {status: :dry_run, fixes: fixes, message: "Dry run completed. #{fixes.length} fixes planned."}
       end
 
-      if interactive && !confirm_fixes(fixes)
-        return {status: :cancelled, message: "Fix operation cancelled by user."}
+      # Apply fixes with optional per-gem confirmation
+      applied_fixes, cancelled = apply_fixes(fixes, interactive: interactive, backup: create_backup)
+
+      if cancelled
+        return {status: :cancelled, message: "No fixes approved."}
       end
-
-      create_lockfile_backup if create_backup
-
-      applied_fixes = apply_fixes(fixes)
 
       {
         status: :completed,
@@ -92,20 +92,8 @@ module GemGuard
     end
 
     def confirm_fixes(fixes)
-      puts "\n🔧 Planned Fixes:"
-      puts "=" * 50
-
-      fixes.each do |fix|
-        severity_emoji = severity_emoji(fix[:severity])
-        puts "#{severity_emoji} #{fix[:gem_name]}: #{fix[:current_version]} → #{fix[:target_version]}"
-        puts "   Fixes: #{fix[:vulnerability_id]}"
-      end
-
-      puts "\n⚠️  This will modify your Gemfile.lock and may require bundle install."
-      print "Do you want to proceed? (y/N): "
-
-      response = $stdin.gets.chomp.downcase
-      response == "y" || response == "yes"
+      # Deprecated: kept for compatibility but not used with per-gem prompts
+      true
     end
 
     def severity_emoji(severity)
@@ -130,10 +118,27 @@ module GemGuard
       puts "📦 Created backup: #{backup_path}"
     end
 
-    def apply_fixes(fixes)
+    def apply_fixes(fixes, interactive: false, backup: true)
       applied_fixes = []
 
-      fixes.each do |fix|
+      # Determine which fixes to apply
+      selected_fixes = if interactive
+        prompt = TTY::Prompt.new
+        fixes.select do |fix|
+          question = "Upgrade #{fix[:gem_name]} #{fix[:current_version]} → #{fix[:target_version]}?"
+          prompt.yes?(question)
+        end
+      else
+        fixes
+      end
+
+      # If no fixes were approved, signal cancellation
+      return [applied_fixes, true] if selected_fixes.empty?
+
+      # Create backup only if we will actually apply at least one fix
+      create_lockfile_backup if backup
+
+      selected_fixes.each do |fix|
         if apply_single_fix(fix)
           applied_fixes << fix
           puts "✅ Updated #{fix[:gem_name]} to #{fix[:target_version]}"
@@ -148,7 +153,7 @@ module GemGuard
         system("bundle install")
       end
 
-      applied_fixes
+      [applied_fixes, false]
     end
 
     def apply_single_fix(fix)
