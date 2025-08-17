@@ -79,7 +79,7 @@ module GemGuard
 
       unless File.exist?(lockfile_path)
         puts "Error: #{lockfile_path} not found"
-        exit 1
+        exit EXIT_ERROR
       end
 
       dependencies = Parser.new.parse(lockfile_path)
@@ -92,7 +92,7 @@ module GemGuard
         generator.generate_cyclone_dx(dependencies, options[:project])
       else
         puts "Error: Unsupported format '#{options[:format]}'. Use 'spdx' or 'cyclone-dx'"
-        exit 1
+        exit EXIT_ERROR
       end
 
       output_json = JSON.pretty_generate(sbom_data)

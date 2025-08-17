@@ -360,6 +360,36 @@ Common fixes:
 
 If you believe the lockfile is valid but still see this error, please open an issue with your `Gemfile.lock` attached (sanitized if needed).
 
+### FileError: Filesystem or Permission Issues
+
+GemGuard raises `GemGuard::FileError` when it cannot read or write required files (e.g., missing `Gemfile`, missing `Gemfile.lock`, or permission denied when creating backups or writing reports).
+
+Common scenarios and fixes:
+
+- **Gemfile not found** (auto-fix): Ensure a `Gemfile` exists at the project root or pass `--gemfile PATH`.
+
+- **Gemfile.lock not found**:
+  - Run `bundle install` to generate it, or pass `--lockfile PATH` to point to the correct file.
+
+- **Permission denied when creating backup (fix)**:
+  - The `fix` command creates a backup like `Gemfile.lock.backup.YYYYMMDD_HHMMSS` when applying changes.
+  - Ensure the working directory is writable by your user: `chmod u+w .` or run within a writable workspace.
+  - In CI, ensure the job user has write access to the repo checkout directory.
+
+- **Permission denied when writing output files (scan/typosquat/sbom)**:
+  - Specify a writable path using `--output`, e.g.: `gem_guard scan --output tmp/vulns.json`.
+  - Create the directory first: `mkdir -p tmp`.
+
+- **Read-only mounted directories in containers/CI**:
+  - Write outputs to a mounted writable volume, e.g., `/tmp`, and upload artifacts from there.
+
+If you continue to see `FileError`, re-run with verbose shell tracing to confirm permissions:
+
+```bash
+set -x
+gem_guard scan --output tmp/vulns.json
+```
+
 ## Development
 
 After checking out the repo, run `bundle install` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bundle exec rake standard` to run the linter.
