@@ -47,6 +47,30 @@ RSpec.describe GemGuard::Parser do
 
       expect { parser.parse("nonexistent.lock") }.to raise_error(Errno::ENOENT)
     end
+
+    it "raises InvalidLockfileError for malformed lockfile" do
+      invalid_path = File.expand_path("../fixtures/invalid_gemfile.lock", __dir__)
+
+      expect {
+        parser.parse(invalid_path)
+      }.to raise_error(GemGuard::InvalidLockfileError, /Invalid Gemfile\.lock/)
+    end
+
+    it "raises InvalidLockfileError for truncated lockfile" do
+      invalid_path = File.expand_path("../fixtures/invalid_gemfile_truncated.lock", __dir__)
+
+      expect {
+        parser.parse(invalid_path)
+      }.to raise_error(GemGuard::InvalidLockfileError)
+    end
+
+    it "raises InvalidLockfileError for bad dependencies formatting" do
+      invalid_path = File.expand_path("../fixtures/invalid_gemfile_bad_dependencies.lock", __dir__)
+
+      expect {
+        parser.parse(invalid_path)
+      }.to raise_error(GemGuard::InvalidLockfileError)
+    end
   end
 end
 

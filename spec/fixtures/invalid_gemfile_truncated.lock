@@ -1,0 +1,12 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rake (13.0.6)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  rake (~> 13.0.0)
+
+# Truncated file: missing BUNDLED WITH section and may cut off content

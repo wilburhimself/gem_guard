@@ -11,4 +11,6 @@ require_relative "gem_guard/auto_fixer"
 
 module GemGuard
   class Error < StandardError; end
+
+  class InvalidLockfileError < Error; end
 end

@@ -1,0 +1,15 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    activesupport (7.1.3)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  activesupport (= )  # invalid: empty version constraint
+  =badline            # invalid: garbage entry
+
+BUNDLED WITH
+   2.5.7

@@ -345,6 +345,21 @@ jobs:
           path: sbom.json
 ```
 
+## ❗️ Troubleshooting
+
+### InvalidLockfileError: Invalid Gemfile.lock
+
+GemGuard raises `GemGuard::InvalidLockfileError` when the `Gemfile.lock` is malformed (e.g., truncated file, malformed `DEPENDENCIES` entries, or dependencies not present in the `specs` section).
+
+Common fixes:
+
+- Run `bundle install` to regenerate `Gemfile.lock`.
+- If issues persist, delete `Gemfile.lock` and run `bundle install` again to fully regenerate.
+- Ensure the file wasn’t manually edited. `Gemfile.lock` should be managed by Bundler.
+- Verify Bundler version compatibility (see the `BUNDLED WITH` section at the bottom of your lockfile).
+
+If you believe the lockfile is valid but still see this error, please open an issue with your `Gemfile.lock` attached (sanitized if needed).
+
 ## Development
 
 After checking out the repo, run `bundle install` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bundle exec rake standard` to run the linter.

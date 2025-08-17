@@ -56,6 +56,10 @@ module GemGuard
         else
           exit EXIT_SUCCESS
         end
+      rescue GemGuard::InvalidLockfileError => e
+        puts "Invalid Gemfile.lock: #{e.message}"
+        puts "Tip: Run 'bundle install' to regenerate your lockfile."
+        exit EXIT_ERROR
       rescue => e
         puts "Error: #{e.message}"
         exit EXIT_ERROR
