@@ -124,13 +124,7 @@ jobs:
     
     - name: Publish to RubyGems
       if: steps.tag_check.outputs.exists == 'false'
-      run: |
-        mkdir -p ~/.gem
-        cat << EOF > ~/.gem/credentials
-        ---
-        :rubygems_api_key: ${{ secrets.RUBYGEMS_API_KEY }}
-        EOF
-        chmod 0600 ~/.gem/credentials
-        gem push gem_guard-${{ steps.version.outputs.version }}.gem
       env:
-        RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+        GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+      run: |
+        gem push gem_guard-${{ steps.version.outputs.version }}.gem
