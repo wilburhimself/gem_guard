@@ -27,7 +27,14 @@ jobs:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
     
+    - name: Run tests (coverage)
+      if: matrix.ruby-version == '3.3'
+      run: bundle exec rspec
+      env:
+        COVERAGE: "true"
+
     - name: Run tests
+      if: matrix.ruby-version != '3.3'
       run: bundle exec rspec
     
     - name: Upload to Codecov
