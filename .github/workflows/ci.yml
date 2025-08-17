@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
-  id-token: write
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -37,17 +33,6 @@ jobs:
       if: matrix.ruby-version != '3.3'
       run: bundle exec rspec
     
-    - name: Upload to Codecov
-      if: always() && matrix.ruby-version == '3.3'
-      uses: codecov/codecov-action@v4
-      continue-on-error: true
-      with:
-        use_oidc: true
-        flags: ruby-${{ matrix.ruby-version }}
-        fail_ci_if_error: false
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
     - name: Upload coverage
       if: always() && matrix.ruby-version == '3.3'
       uses: actions/upload-artifact@v4
