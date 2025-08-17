@@ -25,13 +25,19 @@ jobs:
     
     - name: Run tests (coverage)
       if: matrix.ruby-version == '3.3'
-      run: bundle exec rspec
+      run: |
+        bundle exec rspec --format documentation --backtrace; status=$?
+        echo "RSpec exit status: $status"
+        exit $status
       env:
         COVERAGE: "true"
 
     - name: Run tests
       if: matrix.ruby-version != '3.3'
-      run: bundle exec rspec
+      run: |
+        bundle exec rspec --format documentation --backtrace; status=$?
+        echo "RSpec exit status: $status"
+        exit $status
     
     - name: Upload coverage
       if: always() && matrix.ruby-version == '3.3'
