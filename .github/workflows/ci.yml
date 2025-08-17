@@ -23,28 +23,13 @@ jobs:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
     
-    - name: Run tests (coverage)
-      if: matrix.ruby-version == '3.3'
-      run: |
-        bundle exec rspec --format documentation --backtrace; status=$?
-        echo "RSpec exit status: $status"
-        exit $status
-      env:
-        COVERAGE: "true"
-
     - name: Run tests
-      if: matrix.ruby-version != '3.3'
       run: |
         bundle exec rspec --format documentation --backtrace; status=$?
         echo "RSpec exit status: $status"
         exit $status
     
-    - name: Upload coverage
-      if: always() && matrix.ruby-version == '3.3'
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage
-        path: coverage
+    # SimpleCov/coverage upload removed from CI by request
     
     - name: Run linter
       run: bundle exec rake standard
