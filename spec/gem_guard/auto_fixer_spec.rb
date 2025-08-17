@@ -115,7 +115,7 @@ RSpec.describe GemGuard::AutoFixer do
 
         expect {
           auto_fixer.fix_vulnerabilities([vulnerable_dependency])
-        }.to raise_error(/Gemfile not found/)
+        }.to raise_error(GemGuard::FileError, /Gemfile not found/)
       end
 
       it "raises error when Gemfile.lock is missing" do
@@ -123,7 +123,21 @@ RSpec.describe GemGuard::AutoFixer do
 
         expect {
           auto_fixer.fix_vulnerabilities([vulnerable_dependency])
-        }.to raise_error(/Gemfile\.lock not found/)
+        }.to raise_error(GemGuard::FileError, /Gemfile\.lock not found/)
+      end
+    end
+
+    context "with filesystem permission issues" do
+      it "raises GemGuard::FileError when backup cannot be written (permission denied)" do
+        allow(auto_fixer).to receive(:apply_single_fix).and_return(true)
+        allow(auto_fixer).to receive(:system).and_return(true)
+
+        # Force a backup attempt and simulate EACCES on copy
+        expect(FileUtils).to receive(:cp).and_raise(Errno::EACCES.new("permission denied"))
+
+        expect {
+          auto_fixer.fix_vulnerabilities([vulnerable_dependency], backup: true)
+        }.to raise_error(GemGuard::FileError, /Cannot write backup/)
       end
     end
   end

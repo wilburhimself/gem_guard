@@ -16,11 +16,11 @@ module GemGuard
       create_backup = options.fetch(:backup, true)
 
       unless File.exist?(@gemfile_path)
-        raise "Gemfile not found at #{@gemfile_path}. Auto-fix requires a Gemfile."
+        raise GemGuard::FileError, "Gemfile not found at #{@gemfile_path}. Auto-fix requires a Gemfile."
       end
 
       unless File.exist?(@lockfile_path)
-        raise "Gemfile.lock not found at #{@lockfile_path}. Run 'bundle install' first."
+        raise GemGuard::FileError, "Gemfile.lock not found at #{@lockfile_path}. Run 'bundle install' first."
       end
 
       fixes = plan_fixes(vulnerable_dependencies)
@@ -113,7 +113,11 @@ module GemGuard
       return if @backup_created
 
       backup_path = "#{@lockfile_path}.backup.#{Time.now.strftime("%Y%m%d_%H%M%S")}"
-      FileUtils.cp(@lockfile_path, backup_path)
+      begin
+        FileUtils.cp(@lockfile_path, backup_path)
+      rescue Errno::EACCES, Errno::EPERM => e
+        raise GemGuard::FileError, "Cannot write backup for #{@lockfile_path}: #{e.message}. Check file permissions."
+      end
       @backup_created = true
       puts "📦 Created backup: #{backup_path}"
     end

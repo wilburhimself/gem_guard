@@ -13,4 +13,6 @@ module GemGuard
   class Error < StandardError; end
 
   class InvalidLockfileError < Error; end
+
+  class FileError < Error; end
 end
