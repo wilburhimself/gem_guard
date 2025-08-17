@@ -241,11 +241,10 @@ module GemGuard
           puts "ℹ️  #{result[:message]}"
           exit EXIT_SUCCESS
         when :dry_run
-          puts "🔍 Dry Run Results:"
+          puts "🔍 Dry run — no files will be modified."
           puts "=" * 40
           result[:fixes].each do |fix|
-            puts "#{fix[:gem_name]}: #{fix[:current_version]} → #{fix[:target_version]}"
-            puts "  Fixes: #{fix[:vulnerability_id]} (#{fix[:severity]})"
+            puts "✅ Would update #{fix[:gem_name]} #{fix[:current_version]} → #{fix[:target_version]}"
           end
           puts "\n#{result[:message]}"
           puts "Run without --dry-run to apply these fixes."
