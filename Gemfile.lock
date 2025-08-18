@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    gem_guard (1.2.2)
+    gem_guard (1.2.3)
       json (~> 2.0)
       thor (~> 1.0)
       tty-prompt (~> 0.23)
@@ -10,6 +10,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     ast (2.4.3)
+    awesome_print (1.9.2)
     diff-lcs (1.6.2)
     docile (1.4.1)
     json (2.13.2)
@@ -38,6 +39,9 @@ GEM
     rspec-mocks (3.13.5)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
+    rspec-snapshot (2.0.3)
+      awesome_print (> 1.0.0)
+      rspec (> 3.0.0)
     rspec-support (3.13.4)
     rubocop (1.75.8)
       json (~> 2.3)
@@ -101,6 +105,7 @@ DEPENDENCIES
   gem_guard!
   rake (~> 13.0)
   rspec (~> 3.0)
+  rspec-snapshot (~> 2.0)
   simplecov (~> 0.22)
   standard (~> 1.39)
 

@@ -1,0 +1,27 @@
+{
+  "summary": {
+    "total_vulnerabilities": 1,
+    "high_severity_count": 1,
+    "has_vulnerabilities": true
+  },
+  "vulnerabilities": [
+    {
+      "gem": {
+        "name": "actionpack",
+        "version": "6.1.0",
+        "source": "https://rubygems.org"
+      },
+      "vulnerability": {
+        "id": "CVE-2021-22885",
+        "severity": "HIGH",
+        "summary": "Possible Information Disclosure",
+        "details": "Detailed vulnerability information",
+        "affected_versions": [],
+        "fixed_versions": [
+          "6.1.3.1"
+        ]
+      },
+      "recommended_fix": "bundle update actionpack --to 6.1.3.1"
+    }
+  ]
+}

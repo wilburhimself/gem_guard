@@ -6,6 +6,7 @@ if ENV["COVERAGE"] == "true"
 end
 require "bundler/setup"
 require "gem_guard"
+require "rspec/snapshot"
 
 RSpec.configure do |config|
   config.expect_with :rspec do |c|
@@ -22,6 +23,9 @@ RSpec.configure do |config|
   config.disable_monkey_patching!
   # Disable warnings to prevent exit code 1 from YAML parsing warnings
   config.warnings = false
+
+  # rspec-snapshot
+  config.include RSpec::Snapshot
 
   if config.files_to_run.one?
     config.default_formatter = "doc"

@@ -1,0 +1,14 @@
+🚨 Security Vulnerabilities Found
+==================================================
+
+Summary:
+  Total vulnerabilities: 1
+  High/Critical severity: 1
+
+Details:
+
+📦 actionpack (6.1.0)
+   🔍 Vulnerability: CVE-2021-22885
+   ⚠️  Severity: HIGH
+   📝 Summary: Possible Information Disclosure
+   🔧 Fix: bundle update actionpack --to 6.1.3.1
