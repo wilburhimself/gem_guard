@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   packages: write
+  id-token: write
 
 jobs:
   test:
@@ -122,9 +123,6 @@ jobs:
         draft: false
         prerelease: false
     
-    - name: Publish to RubyGems
+    - name: Publish to RubyGems (Trusted Publishing)
       if: steps.tag_check.outputs.exists == 'false'
-      env:
-        GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
-      run: |
-        gem push gem_guard-${{ steps.version.outputs.version }}.gem
+      uses: rubygems/release-gem@v1
