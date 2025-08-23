@@ -13,7 +13,7 @@ GemGuard is your one-stop solution for Ruby supply chain security. Detect vulner
 ## ✨ Features
 
 ### 🔍 **Vulnerability Scanning**
-- Detect known CVEs from OSV.dev and Ruby Advisory Database
+- Detect known CVEs from OSV.dev, Ruby Advisory Database, GitHub Security Advisories (GHSA), National Vulnerability Database (NVD), and Curesec Advisory Database
 - Smart deduplication handles platform-specific gems
 - Severity-based filtering and thresholds
 - Actionable fix recommendations with exact commands
@@ -245,6 +245,13 @@ typosquat:
 sbom:
   format: "spdx"  # spdx, cyclone-dx
   project_name: "my-project"
+scan:
+  sources:
+    - "osv"
+    - "ruby_advisory_db"
+    - "ghsa"
+    - "nvd"
+    - "cu_advisory_db"
 ```
 
 ### Configuration Options
@@ -261,6 +268,7 @@ sbom:
 | `typosquat.enabled` | Enable typosquat detection | `true` |
 | `sbom.format` | SBOM format (spdx/cyclone-dx) | `"spdx"` |
 | `sbom.project_name` | Project name in SBOM | `"ruby-project"` |
+| `scan.sources` | Vulnerability sources to check | `["osv", "ruby_advisory_db", "ghsa", "nvd", "cu_advisory_db"]` |
 
 ## 🔄 CI/CD Integration
 
@@ -454,7 +462,7 @@ We welcome contributions! Here's how you can help:
 
 ## 📊 Roadmap
 
-- [ ] **Enhanced Vulnerability Sources**: Additional security databases
+- [x] **Enhanced Vulnerability Sources**: Additional security databases
 - [ ] **Auto-Fix Suggestions**: Automated dependency updates
 - [ ] **Web Dashboard**: Browser-based security monitoring
 - [ ] **IDE Integrations**: VS Code, RubyMine plugins
@@ -465,7 +473,7 @@ We welcome contributions! Here's how you can help:
 
 | Feature | GemGuard | bundler-audit | Other Tools |
 |---------|----------|---------------|-------------|
-| **Vulnerability Scanning** | ✅ OSV.dev + Ruby Advisory | ✅ Ruby Advisory Only | ❌ Limited Sources |
+| **Vulnerability Scanning** | ✅ OSV.dev + Ruby Advisory + GHSA + NVD + CU Advisories | ✅ Ruby Advisory Only | ❌ Limited Sources |
 | **Typosquat Detection** | ✅ Fuzzy Matching | ❌ | ❌ |
 | **SBOM Generation** | ✅ SPDX + CycloneDX | ❌ | ❌ |
 | **CI/CD Integration** | ✅ Full Support | ⚠️ Basic | ⚠️ Limited |
@@ -486,6 +494,9 @@ If you discover a security vulnerability within GemGuard, please see our [Securi
 
 - [OSV.dev](https://osv.dev/) for comprehensive vulnerability data
 - [Ruby Advisory Database](https://github.com/rubysec/ruby-advisory-db) for Ruby-specific advisories
+- [GitHub Security Advisories](https://github.com/advisories) for GHSA data
+- [National Vulnerability Database](https://nvd.nist.gov/) for NVD data
+- [Curesec Advisory Database](https://github.com/curesec/curesec-advisory-db) for additional security advisories
 - The Ruby community for continuous feedback and contributions
 
 ---

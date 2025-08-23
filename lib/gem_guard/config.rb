@@ -16,7 +16,7 @@ module GemGuard
         "include_dev_dependencies" => false
       },
       "scan" => {
-        "sources" => ["osv", "ruby_advisory_db"],
+        "sources" => ["osv", "ruby_advisory_db", "ghsa", "nvd", "cu_advisory_db"],
         "timeout" => 30
       }
     }.freeze
