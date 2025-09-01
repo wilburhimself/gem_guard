@@ -128,10 +128,19 @@ module GemGuard
       # Determine which fixes to apply
       selected_fixes = if interactive
         prompt = TTY::Prompt.new
-        fixes.select do |fix|
-          question = "Upgrade #{fix[:gem_name]} #{fix[:current_version]} → #{fix[:target_version]}?"
-          prompt.yes?(question)
+        choices = fixes.map do |fix|
+          {
+            name: "#{severity_emoji(fix[:severity])} #{fix[:gem_name]}: #{fix[:current_version]} → #{fix[:target_version]} (Vulnerability: #{fix[:vulnerability_id]}, Severity: #{fix[:severity]})",
+            value: fix
+          }
         end
+
+        if choices.empty?
+          puts "No actionable fixes found."
+          return [], false
+        end
+
+        prompt.multi_select("Select vulnerabilities to fix:", choices, per_page: 15, cycle: true)
       else
         fixes
       end
