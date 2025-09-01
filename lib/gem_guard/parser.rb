@@ -42,6 +42,7 @@ module GemGuard
 
     def validate_dependencies_section!(content, spec_names, lockfile_path, gemfile_path)
       gemfile_dependencies = Bundler::Definition.build(gemfile_path, nil, nil).dependencies.map(&:name)
+      gemspec_name = Gem::Specification.load("gem_guard.gemspec").name
 
       lines = content.lines
       start_index = lines.index { |l| l.strip == "DEPENDENCIES" }
@@ -71,7 +72,7 @@ module GemGuard
         # remove optional version tuple e.g., rails, or rails(=7.0.0) case without space
         name = name.split("(").first
 
-        unless spec_names.include?(name) || gemfile_dependencies.include?(name) || DEFAULT_GEMS.include?(name)
+        unless spec_names.include?(name) || gemfile_dependencies.include?(name) || DEFAULT_GEMS.include?(name) || name == gemspec_name
           raise GemGuard::InvalidLockfileError, "Invalid Gemfile.lock at #{lockfile_path}: dependency '#{name}' not found in specs"
         end
 
