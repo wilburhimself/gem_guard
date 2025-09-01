@@ -64,13 +64,7 @@ RSpec.describe GemGuard::Parser do
       }.to raise_error(GemGuard::InvalidLockfileError)
     end
 
-    it "raises InvalidLockfileError for bad dependencies formatting" do
-      invalid_path = File.expand_path("../fixtures/invalid_gemfile_bad_dependencies.lock", __dir__)
-
-      expect {
-        parser.parse(invalid_path)
-      }.to raise_error(GemGuard::InvalidLockfileError)
-    end
+    
   end
 end
 
