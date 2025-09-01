@@ -158,7 +158,7 @@ Behavior notes:
 
 > Exit codes: 0 = success, 2 = error. See [Exit Codes](#exit-codes). Use `--verbose` for diagnostics if a file/permission error occurs.
 
-### 交互式模式
+### Interactive mode
 
 For a more streamlined experience, use the `interactive` command. This command will first scan for vulnerabilities, display the results, and then ask if you want to enter the interactive fixing mode.
 
@@ -303,19 +303,19 @@ jobs:
         with:
           ruby-version: '3.2'
           bundler-cache: true
-      
+
       - name: Install GemGuard
         run: gem install gem_guard
-      
+
       - name: Vulnerability Scan
         run: gem_guard scan --format json --output vulnerabilities.json
-      
+
       - name: Typosquat Check
         run: gem_guard typosquat --format json --output typosquats.json
-      
+
       - name: Generate SBOM
         run: gem_guard sbom --output sbom.json
-      
+
       - name: Upload Security Reports
         uses: actions/upload-artifact@v4
         if: always()
