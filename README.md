@@ -132,7 +132,7 @@ Use `fix` to apply recommended upgrades. Start with a dry run to preview changes
 # Preview only — shows what would change, does not modify files
 gem_guard fix --dry-run
 
-# Interactively confirm each upgrade (uses tty-prompt)
+# Interactively select which upgrades to apply
 gem_guard fix --interactive
 
 # Apply fixes non-interactively
@@ -152,11 +152,19 @@ Run without --dry-run to apply these fixes.
 
 Behavior notes:
 
-- **Interactive**: You’ll be asked per gem: `Upgrade nokogiri 1.12.0 → 1.14.3?` Answering “no” skips that gem.
+- **Interactive**: You’ll be presented with a multi-select prompt to choose which fixes to apply.
 - **Backups**: A `Gemfile.lock.backup.YYYYMMDD_HHMMSS` is created only if at least one fix is approved/applied.
 - **Requirements**: `Gemfile` and `Gemfile.lock` must exist. Interactive prompts require a TTY-capable environment.
 
 > Exit codes: 0 = success, 2 = error. See [Exit Codes](#exit-codes). Use `--verbose` for diagnostics if a file/permission error occurs.
+
+### 交互式模式
+
+For a more streamlined experience, use the `interactive` command. This command will first scan for vulnerabilities, display the results, and then ask if you want to enter the interactive fixing mode.
+
+```bash
+gem_guard interactive
+```
 
 ### 🎯 Typosquat Detection
 
