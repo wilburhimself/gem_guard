@@ -67,9 +67,18 @@ RSpec.describe GemGuard::Parser do
     it "raises InvalidLockfileError for bad dependencies formatting" do
       invalid_path = File.expand_path("../fixtures/invalid_gemfile_bad_dependencies.lock", __dir__)
 
-      expect {
-        parser.parse(invalid_path)
-      }.to raise_error(GemGuard::InvalidLockfileError)
+      # Create a dummy Gemfile for the test
+      Dir.mktmpdir do |dir|
+        gemfile_path = File.join(dir, "Gemfile")
+        File.write(gemfile_path, "source 'https://rubygems.org'\ngem 'actionpack'")
+
+        allow(File).to receive(:expand_path).and_call_original
+        allow(File).to receive(:expand_path).with("Gemfile", File.dirname(invalid_path)).and_return(gemfile_path)
+
+        expect {
+          parser.parse(invalid_path)
+        }.to raise_error(GemGuard::InvalidLockfileError)
+      end
     end
   end
 end

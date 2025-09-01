@@ -2,6 +2,8 @@ require "bundler"
 
 module GemGuard
   class Parser
+    DEFAULT_GEMS = %w[bundler racc json minitest rake thor tzinfo tzinfo-data].freeze
+
     def parse(lockfile_path)
       content = File.read(lockfile_path)
       begin
@@ -28,7 +30,8 @@ module GemGuard
       end
 
       # Validate DEPENDENCIES section formatting and presence in specs
-      validate_dependencies_section!(content, dependencies.map(&:name), lockfile_path)
+      gemfile_path = File.expand_path("Gemfile", File.dirname(lockfile_path))
+      validate_dependencies_section!(content, dependencies.map(&:name), lockfile_path, gemfile_path)
 
       # Deduplicate dependencies by name to handle platform-specific gems
       # (e.g., nokogiri-arm64-darwin, nokogiri-x86_64-darwin, etc.)
@@ -37,7 +40,9 @@ module GemGuard
 
     private
 
-    def validate_dependencies_section!(content, spec_names, lockfile_path)
+    def validate_dependencies_section!(content, spec_names, lockfile_path, gemfile_path)
+      gemfile_dependencies = Bundler::Definition.build(gemfile_path, nil, nil).dependencies.map(&:name)
+
       lines = content.lines
       start_index = lines.index { |l| l.strip == "DEPENDENCIES" }
       return unless start_index # If no section, let Bundler rules apply
@@ -58,7 +63,7 @@ module GemGuard
         end
 
         # Expect indentation then a gem name optionally with version in parens
-        if !/^\s{2,}[a-z0-9_\-]+(\s*\([^)]*\))?\s*$/i.match?(stripped)
+        if !/^\s{2,}[a-z0-9_\-]+\s*(\([^)]*\))?\s*$/i.match?(stripped)
           raise GemGuard::InvalidLockfileError, "Invalid Gemfile.lock at #{lockfile_path}: malformed DEPENDENCIES entry '#{line.strip}'"
         end
 
@@ -66,9 +71,9 @@ module GemGuard
         # remove optional version tuple e.g., rails, or rails(=7.0.0) case without space
         name = name.split("(").first
 
-        # unless spec_names.include?(name) || name == "bundler"
-        #   raise GemGuard::InvalidLockfileError, "Invalid Gemfile.lock at #{lockfile_path}: dependency '#{name}' not found in specs"
-        # end
+        unless spec_names.include?(name) || gemfile_dependencies.include?(name) || DEFAULT_GEMS.include?(name)
+          raise GemGuard::InvalidLockfileError, "Invalid Gemfile.lock at #{lockfile_path}: dependency '#{name}' not found in specs"
+        end
 
         deps << name
         i += 1
@@ -76,6 +81,7 @@ module GemGuard
 
       deps
     end
+
 
     def extract_source(spec)
       if spec.source.respond_to?(:uri)
