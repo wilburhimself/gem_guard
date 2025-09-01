@@ -63,7 +63,7 @@ module GemGuard
         end
 
         # Expect indentation then a gem name optionally with version in parens
-        if !/^\s{2,}[a-z0-9_\-]+\s*(\([^)]*\))?\s*$/i.match?(stripped)
+        if !/^\s{2,}[a-z0-9_\-!]+\s*(\([^)]*\))?\s*$/i.match?(stripped)
           raise GemGuard::InvalidLockfileError, "Invalid Gemfile.lock at #{lockfile_path}: malformed DEPENDENCIES entry '#{line.strip}'"
         end
 
