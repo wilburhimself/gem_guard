@@ -11,6 +11,10 @@ module GemGuard
     # Global options
     class_option :verbose, type: :boolean, desc: "Print extra diagnostics on errors"
 
+    def self.exit_on_failure?
+      true
+    end
+
     desc "scan", "Scan dependencies for known vulnerabilities"
     option :format, type: :string, desc: "Output format (table, json)"
     option :lockfile, type: :string, desc: "Path to Gemfile.lock"
