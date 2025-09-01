@@ -66,7 +66,7 @@ module GemGuard
         # remove optional version tuple e.g., rails, or rails(=7.0.0) case without space
         name = name.split("(").first
 
-        unless spec_names.include?(name)
+        unless spec_names.include?(name) || name == 'bundler'
           raise GemGuard::InvalidLockfileError, "Invalid Gemfile.lock at #{lockfile_path}: dependency '#{name}' not found in specs"
         end
 
