@@ -1,14 +1,10 @@
 🚨 Security Vulnerabilities Found
-==================================================
+┌─────────────┬─────────────────────────────────────┐
+│Gem          │actionpack                           │
+│Version      │6.1.0                                │
+│Vulnerability│CVE-2021-22885                       │
+│Severity     │HIGH                                 │
+│Fix          │bundle update actionpack --to 6.1.3.1│
+└─────────────┴─────────────────────────────────────┘
 
-Summary:
-  Total vulnerabilities: 1
-  High/Critical severity: 1
-
-Details:
-
-📦 actionpack (6.1.0)
-   🔍 Vulnerability: CVE-2021-22885
-   ⚠️  Severity: HIGH
-   📝 Summary: Possible Information Disclosure
-   🔧 Fix: bundle update actionpack --to 6.1.3.1
+Summary: Total vulnerabilities: 1, High/Critical severity: 1

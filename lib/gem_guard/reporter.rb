@@ -1,4 +1,5 @@
 require "json"
+require "tty-table"
 
 module GemGuard
   class Reporter
@@ -18,30 +19,22 @@ module GemGuard
     def generate_table_report(analysis)
       return "✅ No vulnerabilities found!" unless analysis.has_vulnerabilities?
 
-      report = []
-      report << "🚨 Security Vulnerabilities Found"
-      report << "=" * 50
-      report << ""
-      report << "Summary:"
-      report << "  Total vulnerabilities: #{analysis.vulnerability_count}"
-      report << "  High/Critical severity: #{analysis.high_severity_count}"
-      report << ""
-      report << "Details:"
-      report << ""
+      table = TTY::Table.new(
+        header: ["Gem", "Version", "Vulnerability", "Severity", "Fix"],
+        rows: analysis.vulnerable_dependencies.map do |vuln_dep|
+          [
+            vuln_dep.dependency.name,
+            vuln_dep.dependency.version,
+            vuln_dep.vulnerability.id,
+            vuln_dep.vulnerability.severity,
+            vuln_dep.recommended_fix
+          ]
+        end
+      )
 
-      analysis.vulnerable_dependencies.each do |vuln_dep|
-        dep = vuln_dep.dependency
-        vuln = vuln_dep.vulnerability
+      summary = "Summary: Total vulnerabilities: #{analysis.vulnerability_count}, High/Critical severity: #{analysis.high_severity_count}"
 
-        report << "📦 #{dep.name} (#{dep.version})"
-        report << "   🔍 Vulnerability: #{vuln.id}"
-        report << "   ⚠️  Severity: #{vuln.severity}"
-        report << "   📝 Summary: #{vuln.summary}" unless vuln.summary.empty?
-        report << "   🔧 Fix: #{vuln_dep.recommended_fix}"
-        report << ""
-      end
-
-      report.join("\n")
+      "🚨 Security Vulnerabilities Found\n#{table.render(:unicode, width: 80)}\n\n#{summary}"
     end
 
     def generate_json_report(analysis)
