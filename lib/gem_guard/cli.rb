@@ -306,6 +306,35 @@ module GemGuard
       puts GemGuard::VERSION
     end
 
+    desc "interactive", "Interactively scan and fix vulnerabilities"
+    option :lockfile, type: :string, desc: "Path to Gemfile.lock"
+    option :gemfile, type: :string, desc: "Path to Gemfile"
+    option :config, type: :string, desc: "Config file path"
+    def interactive
+      config = Config.new(options[:config] || ".gemguard.yml")
+      lockfile_path = options[:lockfile] || config.lockfile_path
+
+      # 1. Scan for vulnerabilities
+      puts "Scanning for vulnerabilities..."
+      dependencies = Parser.new.parse(lockfile_path)
+      vulnerabilities = VulnerabilityFetcher.new.fetch_for(dependencies)
+      analysis = Analyzer.new.analyze(dependencies, vulnerabilities)
+
+      if analysis.vulnerable_dependencies.empty?
+        puts "✅ No vulnerabilities found."
+        exit EXIT_SUCCESS
+      end
+
+      # 2. Report vulnerabilities
+      Reporter.new.report(analysis, format: 'table')
+
+      # 3. Ask to fix
+      prompt = TTY::Prompt.new
+      if prompt.yes?("\nWould you like to fix these vulnerabilities interactively?")
+        invoke :fix, [], options.slice('lockfile', 'gemfile', 'config').merge(interactive: true)
+      end
+    end
+
     private
 
     def filter_vulnerabilities(vulnerabilities, config)
