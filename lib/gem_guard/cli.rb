@@ -326,12 +326,12 @@ module GemGuard
       end
 
       # 2. Report vulnerabilities
-      Reporter.new.report(analysis, format: 'table')
+      Reporter.new.report(analysis, format: "table")
 
       # 3. Ask to fix
       prompt = TTY::Prompt.new
       if prompt.yes?("\nWould you like to fix these vulnerabilities interactively?")
-        invoke :fix, [], options.slice('lockfile', 'gemfile', 'config').merge(interactive: true)
+        invoke :fix, [], options.slice("lockfile", "gemfile", "config").merge(interactive: true)
       end
     end
 
