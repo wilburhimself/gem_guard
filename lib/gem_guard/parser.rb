@@ -62,7 +62,7 @@ module GemGuard
           raise GemGuard::InvalidLockfileError, "Invalid Gemfile.lock at #{lockfile_path}: malformed DEPENDENCIES entry '#{line.strip}'"
         end
 
-        name = stripped.strip.split.first
+        name = stripped.strip.split.first.delete("!")
         # remove optional version tuple e.g., rails, or rails(=7.0.0) case without space
         name = name.split("(").first
 
